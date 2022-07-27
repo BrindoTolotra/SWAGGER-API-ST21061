@@ -50,6 +50,167 @@ paths:
                 $ref: '#/components/schemas/Student'
         400:
           description: Bad request  
+  /students/{id}:
+    get:
+      tags:
+        - Students
+      operationId: getStudentById
+      summary: Get student's information by id
+      description: Get student's information
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: One student information
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Student"
+        400:
+          description: Bad request
+
+    put:
+      tags:
+        - Students
+      operationId: interalStudentChange
+      summary: Change all of one student's information
+      description: Change all of one student's information
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        description: New values for the student
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateStudent"
+      responses:
+        200:
+          description: Informations about the student has beed changed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Student"
+        400:
+          description: incomplete information
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PutBadRequest"
+
+    patch:
+      tags:
+        - Students
+      operationId: partialStudentChange
+      summary: Change one of student's information
+      description: |
+        Changes options : 
+        * name: change
+        * birth_date: change
+        * add : change
+        * phoneNumber: add
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        description: New values for the student
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateStudent"
+            examples:
+              changeTheName:
+                summary: ChangeName
+                description: Only change student's name
+                value:
+                  name: "new name"
+              ChangeTheBirthDate:
+                summary: ChangeBirth_date
+                description: Change student's birth_date if it was wrong
+                value:
+                  birth_date: new birth_date
+              ChangeBoth:
+                summary: ChangeName_Birthdate
+                description: Change the name and the birthdate of one student
+                value:
+                  name: "new name"
+                  birth_date: new birth_date
+              AddPhoneNumber:
+                summary: AddPhoneNumber
+                description: Add phone number to student's information
+                value:
+                  phoneNumbers:
+                    - number: "0340000000"
+                      country_code: "261"
+                    - number: "0320000000"
+                      country_code: "261"
+
+      responses:
+        200:
+          description: Informations about the student has beed changed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Student"
+              examples:
+                nameNbithChanged:
+                  summary: Name and Birthdate changed
+                  description: When the name and the birth_date has beend changed
+                  value:
+                    id: 01
+                    name: Michel
+                    birth_date: "2022-01-01"
+                phoneNumberAdded:
+                  summary: Phone number added
+                  description: When phon number has been added
+                  value:
+                    id: 01
+                    name: Michel
+                    birth_date: "2022-01-01"
+                    phoneNumber: "0320000000"
+
+        400:
+          description: incomplete information
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PatchBadRequest"
+    delete:
+      tags:
+        - Students
+      operationId: deleteStudent
+      summary: Delete one student by id
+      description: delete one student
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Student deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StudentDeleted"
+        400:
+          description: Student delete failed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeleteBadRequest"
+        
   /courses:
     get:
       tags:
@@ -158,12 +319,18 @@ components:
         id:
           type: integer
           example: 10
+
+    StudentDeleted:
+      example:
+        code: 200_Request_successfull
+        message: The student with the {id} has been deleted
+    
     Courses:
       type: object
       properties:
         name: 
           type: string
-          example: "Hacking"
+          example: "Prog"
         teacher: 
           type: string
           example: "Michel"
@@ -183,3 +350,15 @@ components:
       example:
         code: 400_BAD_REQUEST
         message: Parameter are missing
+    PutBadRequest:
+      example:
+        code: 400_BAD_REQUEST
+        message: incomplete information
+    PatchBadRequest:
+      example:
+        code: 400_BAD_REQUEST
+        message: missing or invalid information
+    DeleteBadRequest:
+      example:
+        code: 400_BAD_REQUEST
+        message: invalid id
